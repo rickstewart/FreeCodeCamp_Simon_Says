@@ -1,6 +1,9 @@
 /**
  * Created by Rick on 6/17/2016.
  */
+
+//http://gamedevelopment.tutsplus.com/tutorials/when-worlds-collide-simulating-circle-circle-collisions--gamedev-769
+
 (function () {
     'use strict';
     var canvas = document.getElementById('canvas');
@@ -8,8 +11,7 @@
     var colors = ['FF3727', '09B418', 'FFFF01', '00AAF3'];
     var FPS = 120;
     var NUMBER_OF_BALLS = 4;
-    var MIN_RADIUS = 40;
-    var MAX_RADIUS = 40;
+    var RADIUS = 40;
     var MIN_SPEED = 60;
     var MAX_SPEED = 140;
     var width = canvas.width = '800';
@@ -39,30 +41,31 @@
         this.x = x;
         this.y = y;
         this.r = r;
+        this.m = Math.PI * r * r;
         this.vx = vx;
         this.vy = vy;
         this.color = color;
         this.draw = function () {
             ctx.fillStyle = this.color;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+            ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);  // create a circle
             ctx.fill();
         };
     }
 
     function createBalls() {
         for (var i = 0; i < NUMBER_OF_BALLS; i++) {
-            var x = Math.random() * canvas.width;
-            var y = Math.random() * canvas.height;
-            var r = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
+            var x = Math.random() * canvas.width;                   // random starting x coordinate.
+            var y = Math.random() * canvas.height;                  // random starting y coordinate.
+            var r = RADIUS;
             var vx = (MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)) * [1, -1][Math.floor(Math.random() + 0.5)];
             var vy = (MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)) * [1, -1][Math.floor(Math.random() + 0.5)];
             var ball = new Ball(x, y, r, vx, vy, '#' + colors[i]);
             balls.push(ball);
         }
-        for (i = 0; i < balls.length - 1; i++) {
-            for (var j = i + 1; j < balls.length; j++) {
-                pairs.push([balls[i], balls[j]]);
+        for (var k = 0; k < balls.length - 1; k++) {
+            for (var j = k + 1; j < balls.length; j++) {
+                pairs.push([balls[k], balls[j]]);
             }
         }
     }
@@ -85,53 +88,51 @@
         }
     }
 
+    /* distance formula for 2 points on x - y coordinate system. */
     function distance(ball1, ball2) {
         return Math.sqrt((ball1.x - ball2.x) * (ball1.x - ball2.x) + (ball1.y - ball2.y) * (ball1.y - ball2.y));
     }
 
-    function isColliding(a, b) {
-        if (Math.abs(a.x - b.x) <= a.r + b.r && Math.abs(a.y - b.y) <= a.r + b.r) {
-            if (distance(a, b) <= a.r + b.r) {
-                return true;
-            }
+    function isTouching(ball_A, ball_B) {
+        //if (Math.abs(ball_A.x - ball_B.x) <= 2 * RADIUS && Math.abs(ball_A.y - ball_B.y) <= 2 * RADIUS) {
+        if (distance(ball_A, ball_B) <= 2 * RADIUS) {        // if balls touching.
+            return true;
         }
+        //}
     }
 
     function main_loop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);        // clear the canvas.
         for (var i = 0; i < balls.length; i++) {
-            balls[i].draw();
-            update(balls[i]);
-            for (var j = i + 1; j < pairs.length; j++) {
-                var a = pairs[i][0];
-                var b = pairs[i][1];
-                if (isColliding(a,b)){
-                    var theta = Math.atan((b.y-a.y)/(b.x-a.x));
-                    var error = (a.r+b.r)/(distance(a,b));
-                    var ex = Math.cos(theta)*error;
-                    var ey = Math.sin(theta);
-                    console.log(theta);
-                    console.log([
-                        ravx = Math.cos(theta)*(a.vx)-Math.sin(theta)*(a.vy),
-                        ravy = Math.cos(theta)*(a.vy)+Math.sin(theta)*(a.vx),
-                        rbvx = Math.cos(theta)*(b.vx)-Math.sin(theta)*(b.vy),
-                        rbvy = Math.cos(theta)*(b.vy)+Math.sin(theta)*(b.vx)
-                    ]);
+            balls[i].draw();                                     // render each ball.
+            update(balls[i]);                                    // update each ball position before next render.
+        }
+        for (var j = 0; j < pairs.length; j++) {                 // test each possible ball pairing.
+            var ball_A = pairs[j][0];
+            var ball_B = pairs[j][1];
+            if (isTouching(ball_A, ball_B)) {                    // test if balls in pair are touching.
+                var theta = Math.atan((ball_B.y - ball_A.y) / (ball_B.x - ball_A.x)); // find the angle between the two points in radians.
+                console.log(theta);
+                console.log([
+                    ravx = Math.cos(theta) * (ball_A.vx) - Math.sin(theta) * (ball_A.vy),
+                    ravy = Math.cos(theta) * (ball_A.vy) + Math.sin(theta) * (ball_A.vx),
+                    rbvx = Math.cos(theta) * (ball_B.vx) - Math.sin(theta) * (ball_B.vy),
+                    rbvy = Math.cos(theta) * (ball_B.vy) + Math.sin(theta) * (ball_B.vx)
+                ]);
 
-                    console.log([
-                        ravx2 = (a.m-b.m)/(a.m+b.m)*ravx+(2*b.m)/(a.m+b.m)*rbvx,
-                        ravy2 = ravy,
-                        rbvx2 = (2*a.m)/(a.m+b.m)*ravx+(b.m-a.m)/(a.m+b.m)*rbvx,
-                        rbvy2 = rbvy
-                    ]);
+                console.log([
+                    ravx2 = (ball_A.m - ball_B.m) / (ball_A.m + ball_B.m) * ravx + (2 * ball_B.m) / (ball_A.m + ball_B.m) * rbvx,
+                    ravy2 = ravy,
+                    rbvx2 = (2 * ball_A.m) / (ball_A.m + ball_B.m) * ravx + (ball_B.m - ball_A.m) / (ball_A.m + ball_B.m) * rbvx,
+                    rbvy2 = rbvy
+                ]);
 
-                    console.log([
-                        a.vx = Math.cos(theta)*ravx2-Math.sin(theta)*ravy2,
-                        a.vy = Math.cos(theta)*ravy2+Math.sin(theta)*ravx2,
-                        b.vx = Math.cos(theta)*rbvx2-Math.sin(theta)*rbvy2,
-                        b.vy = Math.cos(theta)*rbvy2+Math.sin(theta)*rbvx2
-                    ]);
-                }
+                console.log([
+                    ball_A.vx = Math.cos(theta) * ravx2 - Math.sin(theta) * ravy2,
+                    ball_A.vy = Math.cos(theta) * ravy2 + Math.sin(theta) * ravx2,
+                    ball_B.vx = Math.cos(theta) * rbvx2 - Math.sin(theta) * rbvy2,
+                    ball_B.vy = Math.cos(theta) * rbvy2 + Math.sin(theta) * rbvx2
+                ]);
             }
         }
     }
