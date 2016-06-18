@@ -113,10 +113,11 @@
         var delta_ay;
         var delta_bx;
         var delta_by;
-        var delta_ax2;
-        var delta_ay2;
-        var delta_bx2;
-        var delta_by2;
+        var newVel_ax2;
+        var newVel_ay2;
+        var newVel_bx2;
+        var newVel_by2;
+        var theta;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);        // clear the canvas.
         for (var i = 0; i < balls.length; i++) {
@@ -127,27 +128,28 @@
         for (var j = 0; j < pairs.length; j++) {                 // test each possible ball pairing.
             var ball_A = pairs[j][0];
             var ball_B = pairs[j][1];
-            if (pairs[j][2] > 0) {                                // if this pair already recorded a collision, increment counter.
+            if (pairs[j][2] > 0) {                               // if this pair already recorded a collision, increment counter.
                 pairs[j][2]++;
             }
-            if (pairs[j][2] === 30) {                             // if this pair sat out 20 loops allow pair to be tested for another collision.
+            if (pairs[j][2] === 30) {                            // if this pair sat out 20 loops allow pair to be tested for another collision.
                 pairs[j][2] = 0;
             }
             if (isTouching(ball_A, ball_B) && pairs[j][2] === 0) {                           // test if balls in pair are touching if collision counter is zero.
-                var theta = Math.atan((ball_B.y - ball_A.y) / (ball_B.x - ball_A.x));        // find the angle between the two points in radians.
+                theta = Math.atan((ball_B.y - ball_A.y) / (ball_B.x - ball_A.x));            // find the angle between the two points in radians.
                 delta_ax = Math.cos(theta) * (ball_A.vx) - Math.sin(theta) * (ball_A.vy);    // calculate the elastic collision results.
                 delta_ay = Math.cos(theta) * (ball_A.vy) + Math.sin(theta) * (ball_A.vx);
                 delta_bx = Math.cos(theta) * (ball_B.vx) - Math.sin(theta) * (ball_B.vy);
                 delta_by = Math.cos(theta) * (ball_B.vy) + Math.sin(theta) * (ball_B.vx);
-                // ball's area used in-leau of a ball mass for new velocity.
-                delta_ax2 = (ball_A.area - ball_B.area) / (ball_A.area + ball_B.area) * delta_ax + (2 * ball_B.area) / (ball_A.area + ball_B.area) * delta_bx;
-                delta_ay2 = delta_ay;
-                delta_bx2 = (2 * ball_A.area) / (ball_A.area + ball_B.area) * delta_ax + (ball_B.area - ball_A.area) / (ball_A.area + ball_B.area) * delta_bx;
-                delta_by2 = delta_by;
-                ball_A.vx = Math.cos(theta) * delta_ax2 - Math.sin(theta) * delta_ay2;       // new ball A velocity in x direction.
-                ball_A.vy = Math.cos(theta) * delta_ay2 + Math.sin(theta) * delta_ax2;       // new ball A velocity in y direction.
-                ball_B.vx = Math.cos(theta) * delta_bx2 - Math.sin(theta) * delta_by2;       // new ball B velocity in x direction.
-                ball_B.vy = Math.cos(theta) * delta_by2 + Math.sin(theta) * delta_bx2;       // new ball y velocity in x direction.
+                                                                 // ball's area used in-leau of a ball mass for new velocity.
+                newVel_ax2 = delta_ax * (ball_A.area - ball_B.area) + (2 * ball_B.area * delta_bx) / (ball_A.area + ball_B.area);
+                newVel_ay2 = delta_ay * (ball_A.area - ball_B.area) + (2 * ball_B.area * delta_by) / (ball_A.area + ball_B.area);
+                newVel_bx2 = delta_bx * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ax) / (ball_A.area + ball_B.area);
+                newVel_by2 = delta_by * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ay) / (ball_A.area + ball_B.area);
+
+                ball_A.vx = Math.cos(theta) * newVel_ax2 - Math.sin(theta) * newVel_ay2;     // new ball A velocity in x direction.
+                ball_A.vy = Math.cos(theta) * newVel_ay2 + Math.sin(theta) * newVel_ax2;     // new ball A velocity in y direction.
+                ball_B.vx = Math.cos(theta) * newVel_bx2 - Math.sin(theta) * newVel_by2;     // new ball B velocity in x direction.
+                ball_B.vy = Math.cos(theta) * newVel_by2 + Math.sin(theta) * newVel_bx2;     // new ball y velocity in x direction.
                 pairs[j][2]++;                                                               // increment loop counter to show collision occurred.
             }
         }
