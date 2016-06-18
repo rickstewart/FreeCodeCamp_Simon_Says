@@ -20,6 +20,7 @@
     var height;
     var balls;
     var pairs;
+    var initialCoordinates;
 
     function init() {
         canvas = document.getElementById('canvas');
@@ -27,20 +28,35 @@
         colors = ['FF3727', '09B418', 'FFFF01', '00AAF3'];
         FPS = 60;
         BALLS_TO_MAKE = 4;
-        RADIUS = 70;
-        MIN_SPEED = 80;
-        MAX_SPEED = 200;
-        width = canvas.width = '800';
-        height = canvas.height = '600';
+        RADIUS = 60;
+        MIN_SPEED = 40;
+        MAX_SPEED = 100;
+        width = canvas.width = calculateCanvasDimensions();
+        height = canvas.height = width;
+        console.log('width: ' + width + ' height: ' + height);                                  // TODO: remove
+        initialCoordinates = [[0.25, 0.25],[0.75,0.25],[0.25, 0.75],[0.75, 0.75]];
         balls = [];
         pairs = [];
         setInterval(main_loop, 1000 / FPS);
         createBalls();
     }
 
+    function calculateCanvasDimensions() {
+        var viewportHeight = window.innerHeight;                 // get current height of viewport.
+        var viewportWidth = window.innerWidth;                   // get current width of viewport.
+        var lengthOfSide;
+        if (viewportWidth > viewportHeight) {                    // if viewport aspect ratio is landscape shaped.
+            lengthOfSide = viewportHeight * 0.5;                 // calculate length of a side.
+        }
+        else {                                                   // else viewport aspect ratio is portrait shaped.
+            lengthOfSide = viewportWidth * 0.5;                  // calculate length of a side.
+        }
+        return lengthOfSide;
+    }
+
     window.onresize = function () {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
+        width = canvas.width = calculateCanvasDimensions();
+        height = canvas.height = width;
     };
 
     /* Constructor function for a ball object */
@@ -61,13 +77,20 @@
     }
 
     function createBalls() {
+        var x;
+        var y;
+        var vx;
+        var vy;
+        var ball;
         for (var i = 0; i < BALLS_TO_MAKE; i++) {
-            var x = Math.random() * canvas.width;                // random starting x coordinate.
-            var y = Math.random() * canvas.height;               // random starting y coordinate.
-            var r = RADIUS;
-            var vx = (MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)) * [1, -1][Math.floor(Math.random() + 0.5)]; // set velocity X direction.
-            var vy = (MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)) * [1, -1][Math.floor(Math.random() + 0.5)]; // set velocity y direction.
-            var ball = new Ball(x, y, r, vx, vy, '#' + colors[i]);
+            x = initialCoordinates[i][0] * canvas.width;
+            y = initialCoordinates[i][1] * canvas.height;
+            //var x = (Math.floor(Math.random() * (90 - 10)) + 10) * canvas.width / 100;                // random starting x coordinate.
+            //var y = (Math.floor(Math.random() * (90 - 10)) + 10) * canvas.height / 100;               // random starting y coordinate.
+            vx = (MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)) * [1, -1][Math.floor(Math.random() + 0.5)]; // set velocity X direction.
+            vy = (MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)) * [1, -1][Math.floor(Math.random() + 0.5)]; // set velocity y direction.
+            console.log('x: ' + x + ' y: ' + y + ' vx: ' + vx + ' vy: ' + vy + ' r: ' + RADIUS);                            //TODO: remove
+            ball = new Ball(x, y, RADIUS, vx, vy, '#' + colors[i]);
             balls.push(ball);                                    // store new ball.
         }
         for (var k = 0; k < balls.length - 1; k++) {             // find and store all 6 possible pair combinations of 4 balls.
@@ -77,7 +100,7 @@
         }
     }
 
-    function update(ball) {
+    function updatePosition(ball) {
         ball.x += ball.vx / FPS;
         ball.y += ball.vy / FPS;
 
@@ -113,21 +136,19 @@
         var delta_ay;
         var delta_bx;
         var delta_by;
-        var newVel_ax2;
-        var newVel_ay2;
-        var newVel_bx2;
-        var newVel_by2;
         var theta;
+        var ball_A;
+        var ball_B;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);        // clear the canvas.
         for (var i = 0; i < balls.length; i++) {
+            updatePosition(balls[i]);                            // update each ball position before next render.
             balls[i].draw();                                     // render each ball.
-            update(balls[i]);                                    // update each ball position before next render.
         }
 
         for (var j = 0; j < pairs.length; j++) {                 // test each possible ball pairing.
-            var ball_A = pairs[j][0];
-            var ball_B = pairs[j][1];
+            ball_A = pairs[j][0];
+            ball_B = pairs[j][1];
             if (pairs[j][2] > 0) {                               // if this pair already recorded a collision, increment counter.
                 pairs[j][2]++;
             }
@@ -141,15 +162,11 @@
                 delta_bx = Math.cos(theta) * (ball_B.vx) - Math.sin(theta) * (ball_B.vy);
                 delta_by = Math.cos(theta) * (ball_B.vy) + Math.sin(theta) * (ball_B.vx);
                                                                  // ball's area used in-leau of a ball mass for new velocity.
-                newVel_ax2 = delta_ax * (ball_A.area - ball_B.area) + (2 * ball_B.area * delta_bx) / (ball_A.area + ball_B.area);
-                newVel_ay2 = delta_ay * (ball_A.area - ball_B.area) + (2 * ball_B.area * delta_by) / (ball_A.area + ball_B.area);
-                newVel_bx2 = delta_bx * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ax) / (ball_A.area + ball_B.area);
-                newVel_by2 = delta_by * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ay) / (ball_A.area + ball_B.area);
+                ball_A.vx = delta_ax * (ball_A.area - ball_B.area) + (2 * ball_B.area * delta_bx) / (ball_A.area + ball_B.area);
+                ball_A.vy = delta_ay * (ball_A.area - ball_B.area) + (2 * ball_B.area * delta_by) / (ball_A.area + ball_B.area);
+                ball_B.vx = delta_bx * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ax) / (ball_A.area + ball_B.area);
+                ball_B.vy = delta_by * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ay) / (ball_A.area + ball_B.area);
 
-                ball_A.vx = Math.cos(theta) * newVel_ax2 - Math.sin(theta) * newVel_ay2;     // new ball A velocity in x direction.
-                ball_A.vy = Math.cos(theta) * newVel_ay2 + Math.sin(theta) * newVel_ax2;     // new ball A velocity in y direction.
-                ball_B.vx = Math.cos(theta) * newVel_bx2 - Math.sin(theta) * newVel_by2;     // new ball B velocity in x direction.
-                ball_B.vy = Math.cos(theta) * newVel_by2 + Math.sin(theta) * newVel_bx2;     // new ball y velocity in x direction.
                 pairs[j][2]++;                                                               // increment loop counter to show collision occurred.
             }
         }

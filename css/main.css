@@ -1,10 +1,14 @@
 body {
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
 }
 
-canvas {
-    vertical-align: bottom;
-    width: 800px;
-    height: 600px;
+#canvas {
+    display: flex;
+    background-color: #1D1F20;
+    border: 1px solid black;
+    border-radius: 20px;
+    max-height: 800px;
+    max-width: 800px;
+    margin: 30px auto 0 auto;
 }
