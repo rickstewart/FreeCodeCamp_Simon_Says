@@ -1,33 +1,39 @@
 /**
  * Created by Rick on 6/17/2016.
  */
-
-//http://gamedevelopment.tutsplus.com/tutorials/when-worlds-collide-simulating-circle-circle-collisions--gamedev-769
+/**
+ * reference material for physics of bouncing and colliding balls:
+ * http//:gamedevelopment.tutsplus.com/tutorials/when-worlds-collide-simulating-circle-circle-collisions--gamedev-769
+**/
 
 (function () {
     'use strict';
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-    var colors = ['FF3727', '09B418', 'FFFF01', '00AAF3'];
-    var FPS = 60;
-    var BALLS_TO_MAKE = 4;
-    var RADIUS = 70;
-    var MIN_SPEED = 80;
-    var MAX_SPEED = 200;
-    var width = canvas.width = '800';
-    var height = canvas.height = '600';
-    var balls = [];
-    var pairs = [];
-    var ravx;
-    var ravy;
-    var rbvx;
-    var rbvy;
-    var ravx2;
-    var ravy2;
-    var rbvx2;
-    var rbvy2;
+    var canvas;
+    var ctx;
+    var colors;
+    var FPS;
+    var BALLS_TO_MAKE;
+    var RADIUS;
+    var MIN_SPEED;
+    var MAX_SPEED;
+    var width;
+    var height;
+    var balls;
+    var pairs;
 
     function init() {
+        canvas = document.getElementById('canvas');
+        ctx = canvas.getContext('2d');
+        colors = ['FF3727', '09B418', 'FFFF01', '00AAF3'];
+        FPS = 60;
+        BALLS_TO_MAKE = 4;
+        RADIUS = 70;
+        MIN_SPEED = 80;
+        MAX_SPEED = 200;
+        width = canvas.width = '800';
+        height = canvas.height = '600';
+        balls = [];
+        pairs = [];
         setInterval(main_loop, 1000 / FPS);
         createBalls();
     }
@@ -42,7 +48,7 @@
         this.x = x;                                              // x coordinate of the circle.
         this.y = y;                                              // y coordinate of the circle.
         this.r = r;                                              // radius of the circle.
-        this.area = Math.PI * r * r;                                // area of the circle.
+        this.area = Math.PI * r * r;                             // area of the circle.
         this.vx = vx;                                            // velocity x direction.
         this.vy = vy;                                            // velocity y direction.
         this.color = color;                                      // color of the circle.
@@ -103,6 +109,15 @@
     }
 
     function main_loop() {
+        var delta_ax;
+        var delta_ay;
+        var delta_bx;
+        var delta_by;
+        var delta_ax2;
+        var delta_ay2;
+        var delta_bx2;
+        var delta_by2;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);        // clear the canvas.
         for (var i = 0; i < balls.length; i++) {
             balls[i].draw();                                     // render each ball.
@@ -112,27 +127,28 @@
         for (var j = 0; j < pairs.length; j++) {                 // test each possible ball pairing.
             var ball_A = pairs[j][0];
             var ball_B = pairs[j][1];
-            if(pairs[j][2] > 0) {                                // if this pair already recorded a collision, increment counter.
+            if (pairs[j][2] > 0) {                                // if this pair already recorded a collision, increment counter.
                 pairs[j][2]++;
             }
-            if(pairs[j][2] === 30) {                             // if this pair sat out 20 loops allow pair to be tested for another collision.
+            if (pairs[j][2] === 30) {                             // if this pair sat out 20 loops allow pair to be tested for another collision.
                 pairs[j][2] = 0;
             }
-            if (isTouching(ball_A, ball_B) && pairs[j][2] === 0) {                       // test if balls in pair are touching if collision counter is zero.
-                var theta = Math.atan((ball_B.y - ball_A.y) / (ball_B.x - ball_A.x));    // find the angle between the two points in radians.
-                ravx = Math.cos(theta) * (ball_A.vx) - Math.sin(theta) * (ball_A.vy);    // calculate the elastic collision results.
-                ravy = Math.cos(theta) * (ball_A.vy) + Math.sin(theta) * (ball_A.vx);
-                rbvx = Math.cos(theta) * (ball_B.vx) - Math.sin(theta) * (ball_B.vy);
-                rbvy = Math.cos(theta) * (ball_B.vy) + Math.sin(theta) * (ball_B.vx);
-                ravx2 = (ball_A.area - ball_B.area) / (ball_A.area + ball_B.area) * ravx + (2 * ball_B.area) / (ball_A.area + ball_B.area) * rbvx;
-                ravy2 = ravy;
-                rbvx2 = (2 * ball_A.area) / (ball_A.area + ball_B.area) * ravx + (ball_B.area - ball_A.area) / (ball_A.area + ball_B.area) * rbvx;
-                rbvy2 = rbvy;
-                ball_A.vx = Math.cos(theta) * ravx2 - Math.sin(theta) * ravy2;           // new ball A velocity in x direction.
-                ball_A.vy = Math.cos(theta) * ravy2 + Math.sin(theta) * ravx2;           // new ball A velocity in y direction.
-                ball_B.vx = Math.cos(theta) * rbvx2 - Math.sin(theta) * rbvy2;           // new ball B velocity in x direction.
-                ball_B.vy = Math.cos(theta) * rbvy2 + Math.sin(theta) * rbvx2;           // new ball y velocity in x direction.
-                pairs[j][2]++ ;                                                          // increment loop counter to show collision occurred.
+            if (isTouching(ball_A, ball_B) && pairs[j][2] === 0) {                           // test if balls in pair are touching if collision counter is zero.
+                var theta = Math.atan((ball_B.y - ball_A.y) / (ball_B.x - ball_A.x));        // find the angle between the two points in radians.
+                delta_ax = Math.cos(theta) * (ball_A.vx) - Math.sin(theta) * (ball_A.vy);    // calculate the elastic collision results.
+                delta_ay = Math.cos(theta) * (ball_A.vy) + Math.sin(theta) * (ball_A.vx);
+                delta_bx = Math.cos(theta) * (ball_B.vx) - Math.sin(theta) * (ball_B.vy);
+                delta_by = Math.cos(theta) * (ball_B.vy) + Math.sin(theta) * (ball_B.vx);
+                // ball's area used in-leau of a ball mass for new velocity.
+                delta_ax2 = (ball_A.area - ball_B.area) / (ball_A.area + ball_B.area) * delta_ax + (2 * ball_B.area) / (ball_A.area + ball_B.area) * delta_bx;
+                delta_ay2 = delta_ay;
+                delta_bx2 = (2 * ball_A.area) / (ball_A.area + ball_B.area) * delta_ax + (ball_B.area - ball_A.area) / (ball_A.area + ball_B.area) * delta_bx;
+                delta_by2 = delta_by;
+                ball_A.vx = Math.cos(theta) * delta_ax2 - Math.sin(theta) * delta_ay2;       // new ball A velocity in x direction.
+                ball_A.vy = Math.cos(theta) * delta_ay2 + Math.sin(theta) * delta_ax2;       // new ball A velocity in y direction.
+                ball_B.vx = Math.cos(theta) * delta_bx2 - Math.sin(theta) * delta_by2;       // new ball B velocity in x direction.
+                ball_B.vy = Math.cos(theta) * delta_by2 + Math.sin(theta) * delta_bx2;       // new ball y velocity in x direction.
+                pairs[j][2]++;                                                               // increment loop counter to show collision occurred.
             }
         }
     }
