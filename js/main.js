@@ -21,7 +21,6 @@
     var balls;
     var pairs;
     var initialCoordinates;
-    var freeze;
 
     function init() {
         canvas = document.getElementById('canvas');
@@ -36,7 +35,6 @@
         height = canvas.height = width;
         console.log('width: ' + width + ' height: ' + height);                                  // TODO: remove
         initialCoordinates = [[0.25, 0.25],[0.75,0.25],[0.25, 0.75],[0.75, 0.75]];
-        freeze = 1;
         balls = [];
         pairs = [];
         setInterval(main_loop, 1000 / FPS);
@@ -70,7 +68,6 @@
         this.vx = vx;                                            // velocity x direction.
         this.vy = vy;                                            // velocity y direction.
         this.color = color;                                      // color of the circle.
-        this.collision = 0;                                      // zero unless in a collision.
         this.draw = function () {
             ctx.fillStyle = this.color;
             ctx.beginPath();
@@ -125,11 +122,9 @@
     }
 
     function isTouching(ball_A, ball_B) {
-        //if (Math.abs(ball_A.x - ball_B.x) <= 2 * RADIUS && Math.abs(ball_A.y - ball_B.y) <= 2 * RADIUS) {
-        if (distance(ball_A, ball_B) <= 2 * RADIUS) {            // if balls touching.
+        if (distance(ball_A, ball_B) <= (2 * RADIUS) + 2) {            // if balls touching.
             return true;
         }
-        //}
     }
 
     function main_loop() {
@@ -157,23 +152,11 @@
                 ball_A.vy = delta_ay * (ball_A.area - ball_B.area) + (2 * ball_B.area * delta_by) / (ball_A.area + ball_B.area);
                 ball_B.vx = delta_bx * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ax) / (ball_A.area + ball_B.area);
                 ball_B.vy = delta_by * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ay) / (ball_A.area + ball_B.area);
-                pairs[j][0].collision = freeze;
-                pairs[j][1].collision = freeze;
             }
         }
         for (var i = 0; i < balls.length; i++) {
-                                                                 // do not update ball position "freeze" turns after a collision - prevent sticky balls.
-            if (balls[i].collision === 0 || balls[i].collision === freeze) {
                 updatePosition(balls[i]);                        // update each ball position before next render.
                 balls[i].draw();                                 // render each ball.
-                if (balls[i].collision === freeze) {
-                    balls[i].collision--;
-                }
-            }
-            else {
-                balls[i].draw();
-                balls[i].collision--;
-            }
         }
     }
 
