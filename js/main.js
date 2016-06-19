@@ -21,20 +21,22 @@
     var balls;
     var pairs;
     var initialCoordinates;
+    var freeze;
 
     function init() {
         canvas = document.getElementById('canvas');
         ctx = canvas.getContext('2d');
         colors = ['FF3727', '09B418', 'FFFF01', '00AAF3'];
-        FPS = 60;
+        FPS = 120;
         BALLS_TO_MAKE = 4;
         RADIUS = 60;
-        MIN_SPEED = 40;
-        MAX_SPEED = 100;
+        MIN_SPEED = 10;
+        MAX_SPEED = 50;
         width = canvas.width = calculateCanvasDimensions();
         height = canvas.height = width;
         console.log('width: ' + width + ' height: ' + height);                                  // TODO: remove
         initialCoordinates = [[0.25, 0.25],[0.75,0.25],[0.25, 0.75],[0.75, 0.75]];
+        freeze = 1;
         balls = [];
         pairs = [];
         setInterval(main_loop, 1000 / FPS);
@@ -46,10 +48,10 @@
         var viewportWidth = window.innerWidth;                   // get current width of viewport.
         var lengthOfSide;
         if (viewportWidth > viewportHeight) {                    // if viewport aspect ratio is landscape shaped.
-            lengthOfSide = viewportHeight * 0.5;                 // calculate length of a side.
+            lengthOfSide = viewportHeight * 0.6;                 // calculate length of a side.
         }
         else {                                                   // else viewport aspect ratio is portrait shaped.
-            lengthOfSide = viewportWidth * 0.5;                  // calculate length of a side.
+            lengthOfSide = viewportWidth * 0.6;                  // calculate length of a side.
         }
         return lengthOfSide;
     }
@@ -68,6 +70,7 @@
         this.vx = vx;                                            // velocity x direction.
         this.vy = vy;                                            // velocity y direction.
         this.color = color;                                      // color of the circle.
+        this.collision = 0;                                      // zero unless in a collision.
         this.draw = function () {
             ctx.fillStyle = this.color;
             ctx.beginPath();
@@ -85,8 +88,6 @@
         for (var i = 0; i < BALLS_TO_MAKE; i++) {
             x = initialCoordinates[i][0] * canvas.width;
             y = initialCoordinates[i][1] * canvas.height;
-            //var x = (Math.floor(Math.random() * (90 - 10)) + 10) * canvas.width / 100;                // random starting x coordinate.
-            //var y = (Math.floor(Math.random() * (90 - 10)) + 10) * canvas.height / 100;               // random starting y coordinate.
             vx = (MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)) * [1, -1][Math.floor(Math.random() + 0.5)]; // set velocity X direction.
             vy = (MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)) * [1, -1][Math.floor(Math.random() + 0.5)]; // set velocity y direction.
             console.log('x: ' + x + ' y: ' + y + ' vx: ' + vx + ' vy: ' + vy + ' r: ' + RADIUS);                            //TODO: remove
@@ -95,7 +96,7 @@
         }
         for (var k = 0; k < balls.length - 1; k++) {             // find and store all 6 possible pair combinations of 4 balls.
             for (var j = k + 1; j < balls.length; j++) {
-                pairs.push([balls[k], balls[j], 0]);             // add counter to each pair to track how many loops ago a collision occurred.
+                pairs.push([balls[k], balls[j]]);
             }
         }
     }
@@ -141,21 +142,11 @@
         var ball_B;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);        // clear the canvas.
-        for (var i = 0; i < balls.length; i++) {
-            updatePosition(balls[i]);                            // update each ball position before next render.
-            balls[i].draw();                                     // render each ball.
-        }
-
         for (var j = 0; j < pairs.length; j++) {                 // test each possible ball pairing.
             ball_A = pairs[j][0];
             ball_B = pairs[j][1];
-            if (pairs[j][2] > 0) {                               // if this pair already recorded a collision, increment counter.
-                pairs[j][2]++;
-            }
-            if (pairs[j][2] === 30) {                            // if this pair sat out 20 loops allow pair to be tested for another collision.
-                pairs[j][2] = 0;
-            }
-            if (isTouching(ball_A, ball_B) && pairs[j][2] === 0) {                           // test if balls in pair are touching if collision counter is zero.
+
+            if (isTouching(ball_A, ball_B)) {                           // test if balls in pair are touching if collision counter is zero.
                 theta = Math.atan((ball_B.y - ball_A.y) / (ball_B.x - ball_A.x));            // find the angle between the two points in radians.
                 delta_ax = Math.cos(theta) * (ball_A.vx) - Math.sin(theta) * (ball_A.vy);    // calculate the elastic collision results.
                 delta_ay = Math.cos(theta) * (ball_A.vy) + Math.sin(theta) * (ball_A.vx);
@@ -166,8 +157,22 @@
                 ball_A.vy = delta_ay * (ball_A.area - ball_B.area) + (2 * ball_B.area * delta_by) / (ball_A.area + ball_B.area);
                 ball_B.vx = delta_bx * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ax) / (ball_A.area + ball_B.area);
                 ball_B.vy = delta_by * (ball_B.area - ball_A.area) + (2 * ball_A.area * delta_ay) / (ball_A.area + ball_B.area);
-
-                pairs[j][2]++;                                                               // increment loop counter to show collision occurred.
+                pairs[j][0].collision = freeze;
+                pairs[j][1].collision = freeze;
+            }
+        }
+        for (var i = 0; i < balls.length; i++) {
+                                                                 // do not update ball position "freeze" turns after a collision - prevent sticky balls.
+            if (balls[i].collision === 0 || balls[i].collision === freeze) {
+                updatePosition(balls[i]);                        // update each ball position before next render.
+                balls[i].draw();                                 // render each ball.
+                if (balls[i].collision === freeze) {
+                    balls[i].collision--;
+                }
+            }
+            else {
+                balls[i].draw();
+                balls[i].collision--;
             }
         }
     }
