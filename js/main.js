@@ -8,37 +8,55 @@
 
 (function () {
     'use strict';
-    var canvas;
-    var ctx;
-    var colors;
     var FPS;
     var BALLS_TO_MAKE;
     var RADIUS;
     var MIN_SPEED;
     var MAX_SPEED;
+    var FLASH_INTERVAL;
+    var canvas;
+    var ctx;
+    var colors;
     var width;
     var height;
     var balls;
     var pairs;
     var initialCoordinates;
+    var simonColorPattern;
+    var sounds;
+    var audioElement;
 
     function init() {
         canvas = document.getElementById('canvas');
+        audioElement = document.createElement('audio');
         ctx = canvas.getContext('2d');
-        colors = ['FF3727', '09B418', 'FFFF01', '00AAF3'];
         FPS = 120;
         BALLS_TO_MAKE = 4;
-        RADIUS = 60;
+        RADIUS = 70;
         MIN_SPEED = 10;
         MAX_SPEED = 50;
+        FLASH_INTERVAL = 200;
+        colors = ['9c121c', '03A64B', 'CBA60C', '094A8F'];
         width = canvas.width = calculateCanvasDimensions();
         height = canvas.height = width;
+        simonColorPattern = simonPatternGenerator();
         console.log('width: ' + width + ' height: ' + height);                                  // TODO: remove
         initialCoordinates = [[0.25, 0.25],[0.75,0.25],[0.25, 0.75],[0.75, 0.75]];
+        sounds = ['sounds/simon1.mp3', 'sounds/simon2.mp3', 'sounds/simon3.mp3', 'sounds/simon4.mp3'];
         balls = [];
         pairs = [];
         setInterval(main_loop, 1000 / FPS);
         createBalls();
+    }
+
+    function simonPatternGenerator() {
+        var randomColor;
+        var twentyRandomColors = [];
+        for(var i = 0; i < 20; i++) {
+            randomColor = Math.floor(Math.random() * 4);   // random number 0 - 3 inclusive.
+            twentyRandomColors.push(randomColor);
+        }
+        return twentyRandomColors;
     }
 
     function calculateCanvasDimensions() {
@@ -54,10 +72,10 @@
         return lengthOfSide;
     }
 
-    window.onresize = function () {
+    $(window).on('resize orientationChange', function () {
         width = canvas.width = calculateCanvasDimensions();
         height = canvas.height = width;
-    };
+    });
 
     /* Constructor function for a ball object */
     function Ball(x, y, r, vx, vy, color) {
@@ -159,6 +177,72 @@
                 balls[i].draw();                                 // render each ball.
         }
     }
+
+    function clickedBallTest(clickX, clickY) {
+        for(var i = 0; i < balls.length; i++) {
+            if(Math.sqrt((balls[i].x - clickX) * (balls[i].x - clickX) + (balls[i].y - clickY) * (balls[i].y - clickY)) < RADIUS) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function flashRed() {
+        balls[0].color = '#ff1c2b';
+        playSound(0);
+        setTimeout(function() {
+            balls[0].color = '#9c121c';
+        }, FLASH_INTERVAL);
+    }
+
+    function flashGreen() {
+        balls[1].color = '#00ff6e';
+        playSound(1);
+        setTimeout(function() {
+            balls[1].color = '#03A64B';
+        }, FLASH_INTERVAL);
+    }
+
+    function flashYellow() {
+        balls[2].color = '#f6ff00';
+        playSound(2);
+        setTimeout(function() {
+            balls[2].color = '#CBA60C';
+        }, FLASH_INTERVAL);
+    }
+
+    function flashBlue() {
+        balls[3].color = '#1188ff';
+        playSound(3);
+        setTimeout(function() {
+            balls[3].color = '#094A8F';
+        }, FLASH_INTERVAL);
+    }
+
+    function playSound(num) {
+        audioElement.setAttribute('src', sounds[num]);
+        audioElement.play();
+    }
+
+    $('#canvas').mousedown(function(e) {
+        console.log('x: ' + e.offsetX + ' y: ' + e.offsetY);
+        var num = clickedBallTest(e.offsetX, e.offsetY);
+        console.log('num: ' + num);
+        if(num > -1) {
+            if(num === 0) {
+                flashRed();
+            }
+            else if ( num === 1) {
+                flashGreen();
+            }
+            else if ( num === 2) {
+                flashYellow();
+            }
+            else if ( num === 3) {
+                flashBlue();
+            }
+        }
+    });
 
     init();
 })();
