@@ -42,7 +42,7 @@
         simonColorPattern = simonPatternGenerator();
         console.log('width: ' + width + ' height: ' + height);                                  // TODO: remove
         initialCoordinates = [[0.25, 0.25],[0.75,0.25],[0.25, 0.75],[0.75, 0.75]];
-        sounds = ['sounds/simon1.mp3', 'sounds/simon2.mp3', 'sounds/simon3.mp3', 'sounds/simon4.mp3'];
+        sounds = ['sounds/simon_164Hz_1s.mp3', 'sounds/simon_220Hz_1s.mp3', 'sounds/simon_261Hz_1s.mp3', 'sounds/simon_329Hz_1s.mp3'];
         balls = [];
         pairs = [];
         setInterval(main_loop, 1000 / FPS);
@@ -140,7 +140,7 @@
     }
 
     function isTouching(ball_A, ball_B) {
-        if (distance(ball_A, ball_B) <= (2 * RADIUS) + 2) {            // if balls touching.
+        if (distance(ball_A, ball_B) <= (2 * RADIUS) + 3) {            // if balls touching.
             return true;
         }
     }
@@ -224,6 +224,29 @@
         audioElement.play();
     }
 
+    function simonPlays(turn) {
+        var temp;
+        for(var i = 0; i < turn; i++ ) {
+            setTimeout(function() {
+                temp = simonColorPattern[i];
+                switch (temp) {
+                    case 0:
+                        flashRed();
+                        break;
+                    case 1:
+                        flashGreen();
+                        break;
+                    case 3:
+                        flashYellow();
+                        break;
+                    case 4:
+                        flashBlue();
+                        break;
+                }
+            }, 1000);
+        }
+    }
+
     $('#canvas').mousedown(function(e) {
         console.log('x: ' + e.offsetX + ' y: ' + e.offsetY);
         var num = clickedBallTest(e.offsetX, e.offsetY);
@@ -245,4 +268,5 @@
     });
 
     init();
+    simonPlays(20);
 })();
