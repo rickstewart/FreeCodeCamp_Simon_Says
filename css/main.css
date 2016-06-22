@@ -1,14 +1,75 @@
 body {
     margin: 0;
     padding: 0;
+    font-family: 'Libre Baskerville', serif;
+    font-weight: 400;
+    font-size: 1em;
+    line-height: 1.2em;
+    color: #795151;
+    background-color: palegoldenrod;
 }
+
+#center-div {
+     background-color: #bc8f8f;
+     margin: 0 auto;
+     border: 10px solid #795151;
+     border-radius: 30px;
+     width: 1200px;
+ }
 
 #canvas {
     display: flex;
     background-color: #333333;
     border: 1px solid black;
     border-radius: 20px;
-    max-height: 800px;
-    max-width: 800px;
+    height: 600px;
+    width: 600px;
     margin: 30px auto 0 auto;
+}
+
+#outer {
+    position: absolute;
+    left: 50%;
+    margin: 20px auto 0 -600px;          /* -600px half the #center-div width: 1200px; */
+    display: inline-flex;
+    flex-direction: row;
+    border: 1px solid #91c4c0;
+    border-radius: 30px;
+    min-height: 800px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.6em;
+    font-weight: 400;
+    line-height: 1.2em;
+    margin-bottom: 0.4em;
+    color: #4F636F;
+}
+
+h2 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    font-size: 1.6em;
+    line-height: 1.2em;
+}
+
+h1, h2 {
+    text-shadow: 1px 1px 1px rgb(221, 222, 229);
+    margin: 20px 0;
+}
+
+#header h2 {
+    text-align: center;
+}
+
+#fcc-link {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9em;
+    float: right;
+    margin: -40px 40px 0 0;
+}
+
+#header {
+    border-bottom: 2px solid #C7C7AB;
 }
