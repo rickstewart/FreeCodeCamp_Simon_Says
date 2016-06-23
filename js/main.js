@@ -5,7 +5,6 @@
 (function () {
     'use strict';
     var FLASH_INTERVAL;
-    var ctx;
     var colors;
     var simonColorPattern;
     var sounds;
