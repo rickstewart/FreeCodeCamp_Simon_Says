@@ -8,14 +8,50 @@
     var colors;
     var simonColorPattern;
     var sounds;
-    var audioElement;
+    var audioCtx;
+    var gainNode;
 
     function init() {
-        audioElement = document.createElement('audio');
         colors = ['9c121c', '03A64B', 'CBA60C', '094A8F'];
-        simonColorPattern = simonPatternGenerator();
+        //simonColorPattern = simonPatternGenerator();
         sounds = ['sounds/simon_164Hz_1s.mp3', 'sounds/simon_220Hz_1s.mp3', 'sounds/simon_261Hz_1s.mp3', 'sounds/simon_329Hz_1s.mp3'];
+        //simonPlays(1);
+        if (!window.AudioContext) {
+            alert('you browser does not support Web Audio API');
+        }
+        playAudio(164, 200);
+        playAudio(220, 200);
+        playAudio(261, 200);
+        playAudio(329, 200);
     }
+
+    function audioGeneratorStart(freq) {
+        //var maxFreq = 6000;
+        var maxVol = 0.5;
+        var initialFreq = 3000;
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        var oscillator = audioCtx.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = freq;
+        oscillator.start(0);
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.8;
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+    }
+
+    function audioGeneratorStop() {
+        gainNode.disconnect(audioCtx.destination);
+    }
+
+    function playAudio(freq, duration) {
+        audioGeneratorStart(freq);
+        setTimeout(function(){
+            audioGeneratorStop();
+        }, duration);
+    }
+
 
     function simonPatternGenerator() {
         var randomColor;
@@ -59,10 +95,10 @@
         }, FLASH_INTERVAL);
     }
 
-    function playSound(num) {
-        audioElement.setAttribute('src', sounds[num]);
-        audioElement.play();
-    }
+    // function playSound(num) {
+    //     audioElement.setAttribute('src', sounds[num]);
+    //     audioElement.play();
+    // }
 
     function simonPlays(turn) {
         var temp;

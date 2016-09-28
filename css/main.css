@@ -135,7 +135,7 @@ h1, h2 {
     border: 8px solid #56514e;
     border-radius: 100%;
     top: 37.2%;
-    left: 40.3%;
+    left: 40.8%;
     background-color: cornsilk;
 }
 
@@ -146,7 +146,6 @@ h1, h2 {
     font-family: 'Denk One', sans-serif;
     color: black;
     font-size: 4em;
-    border: 4px solid black;
     border-radius: 100% 100% 0 100%;
     margin: 0 0 0 24px;
     padding-top: 30px;
