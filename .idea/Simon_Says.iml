@@ -9,5 +9,6 @@
     <orderEntry type="library" name="jQuery-2.0.0" level="application" />
     <orderEntry type="library" name="webaudioapi-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="html5shiv" level="application" />
+    <orderEntry type="library" name="babel-core-DefinitelyTyped" level="application" />
   </component>
 </module>

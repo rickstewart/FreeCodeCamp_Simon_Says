@@ -6,52 +6,60 @@
     'use strict';
     var FLASH_INTERVAL;
     var colors;
-    var simonColorPattern;
-    var sounds;
+    var AudioContext;
     var audioCtx;
-    var gainNode;
+    var oscillator;
+    var redSegment;
+    var greenSegment;
+    var yellowSegment;
+    var blueSegment;
+    var pattern;
+    var loopCounter;
 
     function init() {
+        redSegment = $('#game-top-left');                 // create references to HTML screen areas.
+        greenSegment = $('#game-top-right');
+        yellowSegment = $('#game-bottom-left');
+        blueSegment = $('#game-bottom-right');
         colors = ['9c121c', '03A64B', 'CBA60C', '094A8F'];
-        //simonColorPattern = simonPatternGenerator();
-        sounds = ['sounds/simon_164Hz_1s.mp3', 'sounds/simon_220Hz_1s.mp3', 'sounds/simon_261Hz_1s.mp3', 'sounds/simon_329Hz_1s.mp3'];
-        //simonPlays(1);
         if (!window.AudioContext) {
             alert('you browser does not support Web Audio API');
         }
-        playAudio(164, 200);
-        playAudio(220, 200);
-        playAudio(261, 200);
-        playAudio(329, 200);
-    }
-
-    function audioGeneratorStart(freq) {
-        //var maxFreq = 6000;
-        var maxVol = 0.5;
-        var initialFreq = 3000;
-        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
-        var oscillator = audioCtx.createOscillator();
+        FLASH_INTERVAL = 200;
+        setTimeout(function() {
+            go();
+        }, 600);
+    }
+
+    function go() {
+        pattern = simonPatternGenerator();
+        loopCounter = pattern.length;
+        timingLoop();
+    }
+
+    function timingLoop() {
+        setTimeout(function() {
+            simonPlays(pattern[loopCounter]);
+            loopCounter--;
+            if(loopCounter >= 0) {
+                timingLoop();
+            }
+        },600);
+    }
+
+    function playTone(freq, toneLength) {
+        oscillator = audioCtx.createOscillator();
         oscillator.type = 'sine';
+        oscillator.connect(audioCtx.destination);
         oscillator.frequency.value = freq;
-        oscillator.start(0);
-        gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0.8;
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        setTimeout(function() {
+            oscillator.disconnect(audioCtx.destination);
+            oscillator = null;
+        }, toneLength);
     }
-
-    function audioGeneratorStop() {
-        gainNode.disconnect(audioCtx.destination);
-    }
-
-    function playAudio(freq, duration) {
-        audioGeneratorStart(freq);
-        setTimeout(function(){
-            audioGeneratorStop();
-        }, duration);
-    }
-
 
     function simonPatternGenerator() {
         var randomColor;
@@ -64,65 +72,69 @@
     }
 
     function flashRed() {
-        balls[0].color = '#ff1c2b';
-        playSound(0);
+        redSegment.css('background-color', '#ff1c2b');
+        playTone(164, 200);
         setTimeout(function () {
-            balls[0].color = '#9c121c';
+            redSegment.css('background-color', '#9c121c');
         }, FLASH_INTERVAL);
     }
 
     function flashGreen() {
-        balls[1].color = '#00ff6e';
-        playSound(1);
+        greenSegment.css('background-color', '#00ff6e');
+        playTone(220, 200);
         setTimeout(function () {
-            balls[1].color = '#03A64B';
+            greenSegment.css('background-color', '#03A64B');
         }, FLASH_INTERVAL);
     }
 
     function flashYellow() {
-        balls[2].color = '#f6ff00';
-        playSound(2);
+        yellowSegment.css('background-color', '#f6ff00');
+        playTone(261, 200);
         setTimeout(function () {
-            balls[2].color = '#CBA60C';
+            yellowSegment.css('background-color', '#CBA60C');
         }, FLASH_INTERVAL);
     }
 
     function flashBlue() {
-        balls[3].color = '#1188ff';
-        playSound(3);
+        blueSegment.css('background-color', '#1188ff');
+        playTone(329, 200);
         setTimeout(function () {
-            balls[3].color = '#094A8F';
+            blueSegment.css('background-color', '#094A8F');
         }, FLASH_INTERVAL);
     }
 
-    // function playSound(num) {
-    //     audioElement.setAttribute('src', sounds[num]);
-    //     audioElement.play();
-    // }
-
-    function simonPlays(turn) {
-        var temp;
-        for (var i = 0; i < turn; i++) {
-            setTimeout(function () {
-                temp = simonColorPattern[i];
-                switch (temp) {
-                    case 0:
-                        flashRed();
-                        break;
-                    case 1:
-                        flashGreen();
-                        break;
-                    case 3:
-                        flashYellow();
-                        break;
-                    case 4:
-                        flashBlue();
-                        break;
-                }
-            }, 1000);
+    function simonPlays(color) {
+        switch (color) {
+            case 0:
+                flashRed();
+                break;
+            case 1:
+                flashGreen();
+                break;
+            case 2:
+                flashYellow();
+                break;
+            case 3:
+                flashBlue();
+                break;
         }
     }
 
+    $('#game-top-left').click(function() {
+        simonPlays(0);
+    });
+
+    $('#game-top-right').click(function() {
+        simonPlays(1);
+    });
+
+    $('#game-bottom-left').click(function() {
+        simonPlays(2);
+    });
+
+    $('#game-bottom-right').click(function() {
+        simonPlays(3);
+    });
 
     $('#fcc-link').mouseover(function () {
         this.style.color = 'yellow';
