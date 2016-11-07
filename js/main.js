@@ -42,7 +42,7 @@
         playerLoopRun = false;
         clickEnabled = false;
         maskClickEvents = false;
-        setTimeout(function() {
+        setTimeout(function () {
             gameLoop();                     // delay game start so that display finishes initialization.
         }, 600);
     }
@@ -50,8 +50,8 @@
     function gameLoop() {
         pattern = simonPatternGenerator();
         loopCounter = trackLevel = 3;
-        setInterval(function() {
-            if(computerLoopRun) {
+        setInterval(function () {
+            if (computerLoopRun) {
                 clickEnabled = false;
                 computerLoopRun = false;
                 computersTurn = true;
@@ -60,7 +60,7 @@
             if (postComputerLoopCleanup && playedToneCount === trackLevel + 1) {
                 postComputerLoopCleanup = false;
                 computersTurn = false;
-                setTimeout(function() {
+                setTimeout(function () {
                     clickEnabled = true;
                 }, 400);
                 playerLoopRun = true;
@@ -68,25 +68,25 @@
                 clearTimeout(setTimeoutOne);
                 console.log('timingLoop done...');
             }
-            if(playedToneCount === trackLevel + 1 && playerLoopRun) {
+            if (playedToneCount === trackLevel + 1 && playerLoopRun) {
                 console.log('player made third move...');
                 playerLoopRun = false;
                 clickEnabled = false;
-                setTimeout(function() {
+                setTimeout(function () {
                     testPlayerResponse();
                 }, 100);
             }
-        },1000);
+        }, 1000);
     }
 
     function testPlayerResponse() {
-        if(playersMoves.length >= trackLevel) {
+        if (playersMoves.length >= trackLevel) {
             console.log('testPlayerResponse() firing player made moves');
-            for(var i = 0; i <= trackLevel; i++) {
-                if(playersMoves[i] !== pattern[i]) {
+            for (var i = 0; i <= trackLevel; i++) {
+                if (playersMoves[i] !== pattern[i]) {
                     playersMoves = [];
                     loopCounter = trackLevel;
-                    setTimeout(function() {
+                    setTimeout(function () {
                         errorFlash();
                     }, 600);
                     return;
@@ -99,11 +99,11 @@
     }
 
     function computerTurnTimingLoop() {
-        setTimeoutOne = setTimeout(function() {
+        setTimeoutOne = setTimeout(function () {
             chooseColorAndPlay(pattern[loopCounter], 'computer');
             loopCounter--;
             computerTurnTimingLoop();
-        },900);
+        }, 900);
     }
 
     function playTone(freq, toneLength) {
@@ -113,14 +113,14 @@
         oscillator.frequency.value = freq;
         oscillator.start();
         playedToneCount++;
-        setTimeout(function() {
+        setTimeout(function () {
             oscillator.disconnect(audioCtx.destination);
             oscillator = null;
         }, toneLength);
     }
 
     function chooseColorAndPlay(color, whoClicked) {
-        if(whoClicked === 'computer') {
+        if (whoClicked === 'computer') {
             console.log('chooseColorAndPlay() computers turn firing');
             switch (color) {
                 case 0:
@@ -137,8 +137,9 @@
                     break;
             }
         }
-        else if(whoClicked === 'player' && clickEnabled && maskClickEvents) {
+        else if (whoClicked === 'player' && clickEnabled && !maskClickEvents) {
             console.log('chooseColorAndPlay() players turn firing');
+            maskClickEvents = true;
             switch (color) {
                 case 0:
                     flashRed();
@@ -175,37 +176,47 @@
     }
 
     function flashRed() {
-        if(!maskClickEvents) {
             redSegment.css('background-color', '#ff1c2b');
             playTone(164, FLASH_INTERVAL);
             setTimeout(function () {
                 redSegment.css('background-color', '#9c121c');
             }, FLASH_INTERVAL);
-        }
+        setTimeout(function() {
+            maskClickEvents = false;
+        }, 400);
     }
 
     function flashGreen() {
-        greenSegment.css('background-color', '#00ff6e');
-        playTone(220, FLASH_INTERVAL);
-        setTimeout(function () {
-            greenSegment.css('background-color', '#03A64B');
-        }, FLASH_INTERVAL);
+            greenSegment.css('background-color', '#00ff6e');
+            playTone(220, FLASH_INTERVAL);
+            setTimeout(function () {
+                greenSegment.css('background-color', '#03A64B');
+            }, FLASH_INTERVAL);
+        setTimeout(function() {
+            maskClickEvents = false;
+        }, 400);
     }
 
     function flashYellow() {
-        yellowSegment.css('background-color', '#f6ff00');
-        playTone(261, FLASH_INTERVAL);
-        setTimeout(function () {
-            yellowSegment.css('background-color', '#CBA60C');
-        }, FLASH_INTERVAL);
+            yellowSegment.css('background-color', '#f6ff00');
+            playTone(261, FLASH_INTERVAL);
+            setTimeout(function () {
+                yellowSegment.css('background-color', '#CBA60C');
+            }, FLASH_INTERVAL);
+        setTimeout(function() {
+            maskClickEvents = false;
+        }, 400);
     }
 
     function flashBlue() {
-        blueSegment.css('background-color', '#1188ff');
-        playTone(329, FLASH_INTERVAL);
-        setTimeout(function () {
-            blueSegment.css('background-color', '#094A8F');
-        }, FLASH_INTERVAL);
+            blueSegment.css('background-color', '#1188ff');
+            playTone(329, FLASH_INTERVAL);
+            setTimeout(function () {
+                blueSegment.css('background-color', '#094A8F');
+            }, FLASH_INTERVAL);
+        setTimeout(function() {
+            maskClickEvents = false;
+        }, 400);
     }
 
     function simonPatternGenerator() {
@@ -216,26 +227,22 @@
             twentyRandomColors.push(randomColor);
         }
         //return twentyRandomColors;
-        return [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+        return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
-    redSegment.click(function() {
+    redSegment.click(function () {
         chooseColorAndPlay(0, 'player');
-        maskClickEvents = true;
-        setTimeout(function() {
-            maskClickEvents = false;
-        }, 400);
     });
 
-    greenSegment.click(function() {
+    greenSegment.click(function () {
         chooseColorAndPlay(1, 'player');
     });
 
-    yellowSegment.click(function() {
+    yellowSegment.click(function () {
         chooseColorAndPlay(2, 'player');
     });
 
-    blueSegment.click(function() {
+    blueSegment.click(function () {
         chooseColorAndPlay(3, 'player');
     });
 
