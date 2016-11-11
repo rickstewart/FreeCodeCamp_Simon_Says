@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Libre+Baskerville:400,700|Roboto:400,300,500|Courgette|Denk+One' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Libre+Baskerville:400,700|Roboto:400,300,500|Courgette|Denk+One|Oxygen+Mono'
+          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/main.css">
     <!-- Optional IE8 Support  ( ONLY USE IF IE8 SUPPORT NEEDED ) -->
     <!--[if lt IE 9]>
@@ -21,23 +22,34 @@
             <span><h2>A FreeCodeCamp Zipline</h2></span><span id="fcc-link">Description</span>
         </div>
         <div id="game-container">
-            <div id="game-center"><span id="simon-label">simon</span></div>
-            <div id="simon-top-half">
-                <div id="game-top-left">
-                </div>
-                <div id="game-top-right">
-                </div>
-            </div>
-            <div id="simon-bottom-half">
-                <div id="game-bottom-left">
-                </div>
-                <div id="game-bottom-right">
+            <div id="game-center">
+                <span id="simon-label">simon</span>
+                <span id="level-display"></span>
+                <span id="start-btn"></span>
+                <span id="strict-btn"></span>
+                <span id="count-label">Count</span>
+                <span id="start-label">Start</span>
+                <span id="strict-label">Strict</span>
+                <div id="switch-outer">
+                    <span id="switch-off">Off</span>
+                    <span id="switch"></span>
+                    <span id="slider-left"></span>
+                    <span id=slider-right></span>
+                    <span id="switch-on">On</span>
                 </div>
             </div>
         </div>
+        <div id="simon-top-half">
+            <div id="game-top-left"></div>
+            <div id="game-top-right"></div>
+        </div>
+        <div id="simon-bottom-half">
+            <div id="game-bottom-left"></div>
+            <div id="game-bottom-right"></div>
+        </div>
     </div>
- </div>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/main.js"></script>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    display: inline-flex;
+    display: inline;
     font-family: 'Libre Baskerville', serif;
     font-weight: 400;
     font-size: 1em;
@@ -14,7 +14,7 @@ body {
 #outer-container {
     position: absolute;
     left: 50%;
-    margin: 20px auto 0 -600px;          /* -600px half the #center-div width: 1200px; */
+    margin: 20px auto 0 -400px; /* -600px half the #center-div width: 1200px; */
     flex-direction: row;
     border: 1px solid #91c4c0;
     border-radius: 30px;
@@ -25,8 +25,8 @@ body {
     margin: 0 auto;
     border: 10px solid #795151;
     border-radius: 30px;
-    width: 1200px;
-    height: 860px;
+    width: 800px;
+    height: 720px;
 }
 
 h1 {
@@ -76,7 +76,7 @@ h1, h2 {
 #simon-top-half {
     display: inline-flex;
     flex-direction: row;
-    margin: 30px auto 0 auto;
+    margin: 22px 0 0 140px;
     width: 515px;
     height: 250px;
 }
@@ -104,7 +104,7 @@ h1, h2 {
 #simon-bottom-half {
     display: inline-flex;
     flex-direction: row;
-    margin: 0 auto;
+    margin: 0 0 0 140px;
     width: 515px;
     height: 250px;
     padding-bottom: 60px;
@@ -127,28 +127,151 @@ h1, h2 {
     height: 250px;
     background-color: #094A8F;
 }
+
 #game-center {
     z-index: 100;
     width: 220px;
     height: 220px;
-    position : absolute;
+    position: absolute;
     border: 8px solid #56514e;
     border-radius: 100%;
-    top: 37.2%;
-    left: 40.3%;
-    background-color: cornsilk;
+    top: 44.4%;
+    left: 35.3%;
+    background-color: navajowhite;
 }
 
 #simon-label {
-    position : absolute;
-    right: 16px;
-    top: 20px;
+    position: absolute;
+    right: 18px;
+    top: 16px;
     font-family: 'Denk One', sans-serif;
     color: black;
-    font-size: 4em;
+    background-color: navajowhite;
+    font-size: 3.4em;
     border-radius: 100% 100% 0 100%;
     margin: 0 0 0 24px;
     padding-top: 30px;
-    width: 180px;
+    width: 160px;
     height: 80px;
+}
+
+#level-display {
+    position: absolute;
+    right: 140px;
+    top: 90px;
+    width: 40px;
+    height: 14px;
+    background-color: black;
+    border: 3px solid #56514e;
+    border-radius: 8px;
+    font-family: 'Oxygen Mono', sans-serif;
+    font-size: 28px;
+    margin: 0 0 0 0;
+    color: darkred;
+    padding: 8px 2px 10px 6px;
+}
+
+#start-btn {
+    position: absolute;
+    right: 86px;
+    top: 98px;
+    width: 26px;
+    height: 26px;
+    background-color: #808080;
+    border: 3px solid #CBA60C;
+    border-radius: 20px;
+}
+
+#strict-btn {
+    position: absolute;
+    right: 28px;
+    top: 98px;
+    width: 26px;
+    height: 26px;
+    background-color: #808080;
+    border: 3px solid #CBA60C;
+    border-radius: 20px;
+}
+
+#count-label {
+    position: absolute;
+    right: 160px;
+    top: 136px;
+    width: 30px;
+    height: 30px;
+    color: black;
+    font-family: 'Oxygen Mono', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-variant: small-caps;
+}
+
+#start-label {
+    position: absolute;
+    right: 94px;
+    top: 132px;
+    width: 30px;
+    height: 30px;
+    color: black;
+    font-family: 'Oxygen Mono', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-variant: small-caps;
+}
+
+#strict-label {
+    position: absolute;
+    right: 40px;
+    top: 132px;
+    width: 30px;
+    height: 30px;
+    color: black;
+    font-family: 'Oxygen Mono', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-variant: small-caps;
+}
+
+#switch-outer {
+    position: absolute;
+    right: 80px;
+    top: 176px;
+    width: 52px;
+    height: 14px;
+    border: 2px solid black;
+    border-radius: 3px;
+    color: darkolivegreen;
+    font-family: 'Oxygen Mono', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    font-variant: small-caps;
+    background-color: darkkhaki;
+}
+
+#switch-off {
+    position: absolute;
+    right: 60px;
+    bottom: -1px;
+}
+
+#switch-on {
+    position: absolute;
+    left: 60px;
+    bottom: -1px;
+}
+
+#slider-left {
+    width: 20px;
+    height: 10px;
+    border: 2px solid grey;
+    background-color: darkslategrey;
+    float: left;
+}
+
+#slider-right {
+    width: 20px;
+    height: 10px;
+    border: 2px solid grey;
+    background-color: red;
+    float: right;
 }
